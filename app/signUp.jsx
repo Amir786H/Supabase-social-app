@@ -19,8 +19,8 @@ const SignUp = () => {
   const [loading, setLoading] = useState(false);
 
   const onSubmit = async () => {
-    if(!emailRef.current || !passwordRef.current){
-      Alert.alert('SignUp', 'Please fill all the fields');
+    if (!emailRef.current || !passwordRef.current) {
+      Alert.alert("SignUp", "Please fill all the fields");
       return;
     }
 
@@ -30,16 +30,24 @@ const SignUp = () => {
 
     setLoading(true);
 
-    const {data: {session}, error} = await supabase.auth.signUp({
+    const {
+      data: { session },
+      error,
+    } = await supabase.auth.signUp({
       email,
-      password
+      password,
+      options: {
+        data: {
+          name,
+        },
+      },
     });
     setLoading(false);
-    
-    console.log('session:', session);
-    console.log('error:', error);
-    if(error) {
-      Alert.alert('Sign up', error.message);
+
+    console.log("session:", session);
+    console.log("error:", error);
+    if (error) {
+      Alert.alert("Sign up", error.message);
     }
   };
 

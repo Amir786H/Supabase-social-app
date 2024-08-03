@@ -16,7 +16,7 @@ const Welcome = () => {
         <Image
           style={styles.welcomeImage}
           resizeMode="contain"
-          source={require("../assets/images/welcome.png")}
+          source={require("../assets/images/welcome1.png")}
         />
         {/* title */}
         <View style={{ gap: 20 }}>

@@ -19,19 +19,19 @@ const MainLayout = () => {
 
   useEffect(() => {
     supabase.auth.onAuthStateChange((_event, session) => {
-      console.log("session user: ", session?.user);
+      console.log("session user: ", session?.user?.id);
 
       if (session) {
         setAuth(session?.user);
-        router.replace('/home');
+        router.replace("/home");
       } else {
         setAuth(null);
-        router.replace('/welcome');
+        router.replace("/Welcome");
       }
     });
-  },[]);
+  }, []);
 
   return <Stack screenOptions={{ headerShown: false }} />;
 };
 
-export default _layout;
+export default _layout

@@ -43,6 +43,7 @@ const SignUp = () => {
       },
     });
     setLoading(false);
+    router.push('/login');
 
     console.log("session:", session);
     console.log("error:", error);
@@ -91,7 +92,7 @@ const SignUp = () => {
         {/* footer */}
         <View style={styles.footer}>
           <Text style={styles.footerText}>Already have an account!</Text>
-          <Pressable onPress={() => router.push("login")}>
+          <Pressable onPress={() => router.push("/login")}>
             <Text
               style={[
                 styles.footerText,

@@ -16,11 +16,11 @@ const Welcome = () => {
         <Image
           style={styles.welcomeImage}
           resizeMode="contain"
-          source={require("../assets/images/welcome1.png")}
+          source={require("../assets/images/welcome4.png")}
         />
         {/* title */}
         <View style={{ gap: 20 }}>
-          <Text style={styles.title}>LinkUp!</Text>
+          <Text style={styles.title}>HookUp!</Text>
           <Text style={styles.punchline}>
             Where every thought find a home and every image tells a story.
           </Text>

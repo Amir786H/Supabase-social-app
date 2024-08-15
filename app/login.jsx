@@ -1,5 +1,5 @@
 import { Alert, Pressable, StyleSheet, Text, View } from "react-native";
-import React, { useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import ScreenWrapper from "../components/ScreenWrapper";
 import { theme } from "../constants/theme";
 import Icon from "../assets/icons";
@@ -10,6 +10,7 @@ import { wp, hp } from "../helpers/common";
 import Input from "../components/Input";
 import Button from "../components/Button";
 import { supabase } from "../lib/supabase";
+import Animated, { useSharedValue, withSpring } from "react-native-reanimated";
 
 const Login = () => {
   const router = useRouter();
@@ -17,9 +18,15 @@ const Login = () => {
   const passwordRef = useRef("");
   const [loading, setLoading] = useState(false);
 
+  const width = useSharedValue(180); //For Button Animation
+
+  useEffect(() => {
+    width.value = withSpring(width.value + 150); //For Animation
+  }, []);
+
   const onSubmit = async () => {
-    if(!emailRef.current || !passwordRef.current){
-      Alert.alert('Login', 'Please fill all the fields');
+    if (!emailRef.current || !passwordRef.current) {
+      Alert.alert("Login", "Please fill all the fields");
       return;
     }
 
@@ -27,16 +34,16 @@ const Login = () => {
     let password = passwordRef.current.trim();
     setLoading(true);
 
-    const {error} = await supabase.auth.signInWithPassword({
+    const { error } = await supabase.auth.signInWithPassword({
       email,
-      password
+      password,
     });
 
     setLoading(false);
-    
-    console.log('error: ', error);
-    if(error) {
-      Alert.alert('Login', error.message);
+
+    console.log("error: ", error);
+    if (error) {
+      Alert.alert("Login", error.message);
     }
   };
 
@@ -70,7 +77,15 @@ const Login = () => {
           />
           <Text style={styles.forgotPassword}>Forgot Password?</Text>
           {/* Button */}
-          <Button title={"Login"} loading={loading} onPress={onSubmit} />
+          <Animated.View
+            style={{
+              width,
+              height: 50,
+              alignSelf: "center",
+            }}
+          >
+            <Button title={"Login"} loading={loading} onPress={onSubmit} />
+          </Animated.View>
         </View>
 
         {/* footer */}

@@ -15,13 +15,18 @@ import Input from "../../components/Input";
 import Button from "../../components/Button";
 import { Image } from "expo-image";
 import { useAuth } from "../../contexts/AuthContext";
-import { getUserImageSrc } from "../../services/imageService";
+import { getUserImageSrc, uploadFile } from "../../services/imageService";
 import Icon from "../../assets/icons";
 
 import Animated, { useSharedValue, withSpring } from "react-native-reanimated";
+import { updateUser } from "../../services/userService";
+import { useRouter } from "expo-router";
+import * as ImagePicker from "expo-image-picker";
 
 const EditProfile = () => {
-  const { user: currentUser } = useAuth();
+  const { user: currentUser, setUserData } = useAuth();
+  const router = useRouter();
+
   const [loading, setLoading] = useState(false);
   const [user, setUser] = useState({
     name: "",
@@ -31,7 +36,7 @@ const EditProfile = () => {
     address: "",
   });
 
-  const width = useSharedValue(180);  //For Button Animation
+  const width = useSharedValue(180); //For Button Animation
 
   useEffect(() => {
     if (currentUser) {
@@ -43,22 +48,49 @@ const EditProfile = () => {
         bio: currentUser.bio || "",
       });
     }
-    width.value = withSpring(width.value + 150);  //For Animation
+    width.value = withSpring(width.value + 150); //For Animation
   }, [currentUser]);
 
-  let imageSource = getUserImageSrc(user.image);
+  let imageSource =
+    user.image && typeof user.image === "object"
+      ? user.image.uri
+      : getUserImageSrc(user.image);
 
-  const onPickImage = async () => {};
+  const onPickImage = async () => {
+    let result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      allowsEditing: true,
+      aspects: [4, 3],
+      quality: 0.7,
+    });
+
+    if (!result.canceled) {
+      setUser({ ...user, image: result.assets[0] });
+    }
+  };
 
   const onSubmit = async () => {
     let userData = { ...user };
     let { name, phoneNumber, image, address, bio } = userData;
-    if (!name || !phoneNumber || !address || !bio) {
+    if (!name || !phoneNumber || !address || !bio || !image) {
       Alert.alert("Profile", "Please fill all the fields");
       return;
     }
     setLoading(true);
+
+    if(typeof image === "object") {
+      let imageRes = await uploadFile('profiles', image?.uri, true);
+      if(imageRes.success) userData.image = imageRes.data;
+      else userData.image = null;
+    }
     // update user
+    const res = await updateUser(currentUser?.id, userData);
+    setLoading(false);
+
+    if (res.success) {
+      setUserData({ ...currentUser, ...userData });
+      router.back();
+    }
   };
 
   return (

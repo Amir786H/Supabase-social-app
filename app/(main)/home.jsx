@@ -1,5 +1,13 @@
-import { StyleSheet, Text, Button, View, Alert, Pressable } from "react-native";
-import React from "react";
+import {
+  StyleSheet,
+  Text,
+  Button,
+  View,
+  Alert,
+  Pressable,
+  FlatList,
+} from "react-native";
+import React, { useState, useEffect } from "react";
 import ScreenWrapper from "../../components/ScreenWrapper";
 import { useAuth } from "../../contexts/AuthContext";
 import { supabase } from "../../lib/supabase";
@@ -8,12 +16,31 @@ import { hp, wp } from "../../helpers/common";
 import Icon from "../../assets/icons";
 import { useRouter } from "expo-router";
 import Avatar from "../../components/Avatar";
+import { fetchPosts } from "../../services/postService";
+import PostCard from "../../components/PostCard";
 
+var limit = 0;
 const Home = () => {
   const router = useRouter();
   const { user, setAuth } = useAuth();
 
-  console.log("user: ", user);
+  const [posts, setPosts] = useState([]);
+
+  useEffect(() => {
+    getPosts();
+  }, []);
+
+  const getPosts = async () => {
+    //call the api here
+    limit = limit + 10;
+    let res = await fetchPosts(limit);
+    // console.log('res: ', res);
+    if (res.success) {
+      setPosts(res.data);
+    }
+  };
+
+  // console.log("user: ", user);
 
   // const onLogout = async () => {
   //   // setAuth(null);
@@ -57,6 +84,17 @@ const Home = () => {
             </Pressable>
           </View>
         </View>
+
+        {/* posts */}
+        <FlatList
+          data={posts}
+          showsVerticalScrollIndicator={false}
+          contentContainerStyle={styles.listStyle}
+          keyExtractor={(item) => item.id.toString()}
+          renderItem={({ item }) => (
+            <PostCard item={item} currentUser={user} router={router} />
+          )}
+        />
       </View>
       {/* <Button title="logout" onPress={onLogout} /> */}
     </ScreenWrapper>

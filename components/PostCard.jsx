@@ -7,6 +7,15 @@ const PostCard = ({
     router,
     hasShadow = true,
 }) => {
+  const shadowStyles = {
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.06,
+    shadowRadius: 6,
+    elevation: 1,
+  }
     // console.log('post item: ', item);
   return (
     <View>

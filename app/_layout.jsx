@@ -1,10 +1,15 @@
-import { View, Text } from "react-native";
+import { View, Text, LogBox } from "react-native";
 import React, { useEffect } from "react";
 import { Stack, useRouter } from "expo-router";
 import { AuthProvider, useAuth } from "../contexts/AuthContext";
 import { supabase } from "../lib/supabase";
 import { getUserData } from "../services/userService";
 
+LogBox.ignoreLogs([
+  "Warning: TNodeChildrenRenderer",
+  "Warning: MemoizedTNodeRenderer",
+  "Warning: TRenderEngineProvider",
+]);
 const _layout = () => {
   return (
     <AuthProvider>
@@ -38,11 +43,10 @@ const MainLayout = () => {
     let res = await getUserData(user?.id);
     // console.log('got user data: ', res);
 
-    if(res.success) setUserData({...res.data, email});
-  }
-
+    if (res.success) setUserData({ ...res.data, email });
+  };
 
   return <Stack screenOptions={{ headerShown: false }} />;
 };
 
-export default _layout
+export default _layout;

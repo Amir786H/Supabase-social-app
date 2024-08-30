@@ -6,6 +6,9 @@ import Avatar from "./Avatar";
 import moment from "moment";
 import Icon from "../assets/icons";
 import RenderHTML from "react-native-render-html";
+import { Image } from "expo-image";
+import { getSupaBaseFileUrl } from "../services/imageService";
+import { Video } from "expo-av";
 
 const textStyle = {
   color: theme.colors.dark,
@@ -35,6 +38,8 @@ const PostCard = ({ item, currentUser, router, hasShadow = true }) => {
   // console.log('post item: ', item);
 
   const createdAt = moment(item?.created_at).format("MMM D");
+  const liked = false;
+  const likes = [];
 
   const openPostDetails = () => {};
 
@@ -74,6 +79,61 @@ const PostCard = ({ item, currentUser, router, hasShadow = true }) => {
               tagsStyles={tagsStyles}
             />
           )}
+        </View>
+
+        {/* post image */}
+        {item?.file && item?.file.includes("postImages") && (
+          <Image
+            source={getSupaBaseFileUrl(item?.file)}
+            transition={100}
+            style={styles.postMedia}
+            contentFit="cover"
+          />
+        )}
+
+        {/* post video */}
+        {item?.file && item?.file.includes("postVideos") && (
+          <Video
+            style={[styles.postMedia, { height: hp(30) }]}
+            source={getSupaBaseFileUrl(item?.file)}
+            useNativeControls
+            resizeMode="cover"
+            isLooping
+          />
+        )}
+      </View>
+
+      {/* like, comment & share */}
+      <View style={styles.footer}>
+        <View style={styles.footerButton}>
+          <TouchableOpacity>
+            <Icon
+              name="heart"
+              size={24}
+              fill={liked ? theme.colors.rose : 'transparent'}
+              color={liked ? theme.colors.rose : theme.colors.textLight}
+            />
+          </TouchableOpacity>
+          <Text style={styles.count}>{likes?.length}</Text>
+        </View>
+        <View style={styles.footerButton}>
+          <TouchableOpacity>
+            <Icon
+              name="comment"
+              size={24}
+              color={theme.colors.textLight}
+            />
+          </TouchableOpacity>
+          <Text style={styles.count}>0</Text>
+        </View>
+        <View style={styles.footerButton}>
+          <TouchableOpacity>
+            <Icon
+              name="share"
+              size={24}
+              color={theme.colors.textLight}
+            />
+          </TouchableOpacity>
         </View>
       </View>
     </View>
@@ -131,5 +191,16 @@ const styles = StyleSheet.create({
   count: {
     color: theme.colors.text,
     fontSize: hp(1.8),
+  },
+  postMedia: {
+    height: hp(40),
+    width: "100%",
+    borderRadius: theme.radius.xl,
+    borderCurve: "continuous",
+  },
+  postTime: {
+    fontSize: hp(1.4),
+    color: theme.colors.textLight,
+    fontWeight: theme.fonts.medium,
   },
 });

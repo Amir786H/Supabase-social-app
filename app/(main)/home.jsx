@@ -18,6 +18,8 @@ import { useRouter } from "expo-router";
 import Avatar from "../../components/Avatar";
 import { fetchPosts } from "../../services/postService";
 import PostCard from "../../components/PostCard";
+import Loading from "../../components/Loading";
+import {getUserData} from "../../services/userService";
 
 var limit = 0;
 const Home = () => {
@@ -25,17 +27,39 @@ const Home = () => {
   const { user, setAuth } = useAuth();
 
   const [posts, setPosts] = useState([]);
+  const [hasMore, setHasMore] = useState(true);
+
+  const handlePostEvent = async (payload) => {
+    console.log('Got post event: ', payload);
+    if(payload.eventType == 'INSERT' && payload?.new?.id) {
+      let newPost = {...payload.new};
+      let res = await getUserData(newPost.userId);
+      newPost.user = res.success? res.data : {};
+      setPosts(prevPosts => [newPost, ...prevPosts]);
+    }
+  }
 
   useEffect(() => {
-    getPosts();
+    let postChannel = supabase
+    .channel('posts')
+    .on('postgres_changes', { event: '*', schema: 'public', table: 'posts' },handlePostEvent)
+    .subscribe();
+
+    // getPosts();
+    return () => {
+      supabase.removeChannel(postChannel);
+    }
   }, []);
 
   const getPosts = async () => {
     //call the api here
-    limit = limit + 10;
+
+    if(!hasMore) return null;
+    limit = limit + 5;
     let res = await fetchPosts(limit);
     // console.log('res: ', res);
     if (res.success) {
+      if(posts.length == res.data.length) setHasMore(false); 
       setPosts(res.data);
     }
   };
@@ -94,6 +118,20 @@ const Home = () => {
           renderItem={({ item }) => (
             <PostCard item={item} currentUser={user} router={router} />
           )}
+          onEndReached={() => {
+            getPosts();
+            // console.log('got to the End')
+          }}
+          onEndReachedThreshold={0}
+          ListFooterComponent={hasMore ? (
+            <View style={{ marginVertical: posts.length == 0 ? 200 : 30 }}>
+              <Loading />
+            </View>
+          ) : (
+              <View style={{marginVertical: 30}}>
+                  <Text style={styles.noPosts}>No more posts</Text>
+              </View>
+            )}
         />
       </View>
       {/* <Button title="logout" onPress={onLogout} /> */}

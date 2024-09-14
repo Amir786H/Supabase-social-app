@@ -9,7 +9,7 @@ import RenderHTML from "react-native-render-html";
 import { Image } from "expo-image";
 import { getSupaBaseFileUrl } from "../services/imageService";
 import { Video } from "expo-av";
-import { createPostLike } from "../services/postService";
+import { createPostLike, removePostLike } from "../services/postService";
 
 const textStyle = {
   color: theme.colors.dark,
@@ -53,18 +53,35 @@ const PostCard = ({ item, currentUser, router, hasShadow = true }) => {
   };
 
   const onLike = async () => {
-    let data = {
-      userId: currentUser?.id,
-      postId: item?.id,
-    };
-    setLikes([...likes, data]); //For updating the post likes data
-    let res = await createPostLike(data);
-    // console.log("onLike res: ", res);
-
-    if (!res.success) {
-      Alert.alert("Post", "Something went wrong");
+    if(liked) {
+      // remove like
+      let updatedLikes = likes.filter(like => like.userId!= currentUser?.id);
+      setLikes([...updatedLikes]); //For updating the post likes data
+      let res = await removePostLike(item?.id, currentUser?.id);
+      // console.log("removeLike res: ", res);
+  
+      if (!res.success) {
+        Alert.alert("Post", "Something went wrong");
+      }
+    } else {
+      // create like
+      let data = {
+        userId: currentUser?.id,
+        postId: item?.id,
+      };
+      setLikes([...likes, data]); //For updating the post likes data
+      let res = await createPostLike(data);
+      // console.log("addedLike res: ", res);
+  
+      if (!res.success) {
+        Alert.alert("Post", "Something went wrong");
+      }
     }
   };
+
+  const onShare = async () => {
+    //
+  }
 
   return (
     <View style={[styles.container, hasShadow && shadowStyles]}>
@@ -146,7 +163,7 @@ const PostCard = ({ item, currentUser, router, hasShadow = true }) => {
           <Text style={styles.count}>0</Text>
         </View>
         <View style={styles.footerButton}>
-          <TouchableOpacity>
+          <TouchableOpacity onPress={onShare}>
             <Icon name="share" size={24} color={theme.colors.textLight} />
           </TouchableOpacity>
         </View>

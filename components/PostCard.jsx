@@ -1,7 +1,7 @@
-import { Alert, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { Alert, Share, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import React, { useEffect, useState } from "react";
 import { theme } from "../constants/theme";
-import { hp, wp } from "../helpers/common";
+import { hp, stripHtmlTags, wp } from "../helpers/common";
 import Avatar from "./Avatar";
 import moment from "moment";
 import Icon from "../assets/icons";
@@ -80,7 +80,8 @@ const PostCard = ({ item, currentUser, router, hasShadow = true }) => {
   };
 
   const onShare = async () => {
-    //
+    let content = {message: stripHtmlTags(item?.body)};
+    Share.share(content);
   }
 
   return (

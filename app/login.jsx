@@ -34,7 +34,7 @@ const Login = () => {
     let password = passwordRef.current.trim();
     setLoading(true);
 
-    const { error } = await supabase.auth.signInWithPassword({
+    const { data, error } = await supabase.auth.signInWithPassword({
       email,
       password,
     });
@@ -42,6 +42,7 @@ const Login = () => {
     setLoading(false);
 
     console.log("error: ", error);
+    // console.log("DATAAAAA: ", data);
     if (error) {
       Alert.alert("Login", error.message);
     }
